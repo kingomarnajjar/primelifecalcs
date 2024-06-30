@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primelife Partners Superannuation and Expenses Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+            width: 400px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #e20074; /* Magenta */
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #e20074; /* Magenta */
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button:hover {
+            background-color: #c90063; /* Darker Magenta */
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .slider-container {
+            text-align: left;
+            margin-bottom: 10px;
+        }
+        .profile {
+            margin: 20px 0;
+            text-align: left;
+        }
+        .profile img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+        .profile div {
+            display: inline-block;
+            vertical-align: top;
+            max-width: 250px;
+        }
+        .profile h3 {
+            margin: 0 0 10px;
+            color: #e20074;
+        }
+        .profile p {
+            margin: 0;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            button {
+                padding: 8px;
+            }
+            .profile img {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://primelifepartners.com/wp-content/uploads/2023/11/logo.png" alt="Primelife Partners Logo" style="width: 100%; max-width: 300px; margin-bottom: 20px;">
+        <h1>Primelife Partners Superannuation and Expenses Calculator</h1>
+        <form id="superForm">
+            <h2>Superannuation</h2>
+            <label for="currentSuper">Current Superannuation ($):</label>
+            <input type="number" id="currentSuper" value="100000">
+            
+            <label for="salary">Annual Salary ($):</label>
+            <input type="number" id="salary" value="80000">
+            
+            <label for="rate">Superannuation Contribution Rate (%):</label>
+            <input type="number" id="rate" value="10">
+            
+            <label for="years">Years of Savings:</label>
+            <input type="number" id="years" value="20">
+
+            <label for="growthRate">Annual Growth Rate (%):</label>
+            <input type="number" id="growthRate" value="5">
+
+            <div class="slider-container">
+                <label for="retirementAge">Retirement Age: <span id="retirementAgeValue">67</span></label>
+                <input type="range" id="retirementAge" min="67" max="100" value="67" oninput="updateRetirementAgeValue()">
+            </div>
+
+            <h2>Expenses</h2>
+            <label for="rentOwn">Do you rent or own?</label>
+            <select id="rentOwn">
+                <option value="rent">Rent</option>
+                <option value="own">Own</option>
+            </select>
+
+            <label for="housingCost">Housing Cost (Monthly $):</label>
+            <input type="number" id="housingCost" value="1500">
+
+            <div id="strataSection" style="display: none;">
+                <label for="strataCost">Strata Cost (Monthly $):</label>
+                <input type="number" id="strataCost" value="200">
+            </div>
+
+            <label for="electricity">Electricity (Monthly $):</label>
+            <input type="number" id="electricity" value="100">
+
+            <label for="hairdressing">Hairdressing (Monthly $):</label>
+            <input type="number" id="hairdressing" value="50">
+
+            <label for="car">Car (Monthly $):</label>
+            <input type="number" id="car" value="200">
+
+            <h2>Retirement</h2>
+            <label for="deathAge">Expected Age at Death:</label>
+            <input type="number" id="deathAge" value="85">
+            
+            <button type="button" onclick="calculateSuper()">Calculate</button>
+        </form>
+        <div id="result"></div>
+        <canvas id="superChart"></canvas>
+        
+        <div class="profile">
+            <img src="https://primelifepartners.com/wp-content/uploads/2024/01/abbey-1-300x300-1.png" alt="Dr. Abby Bloom">
+            <div>
+                <h3>Dr. Abby Bloom</h3>
+                <p>Chair, non-executive director and leader in innovation, commercialisation, deeptech, digital transformation, social impact, health and ageing.</p>
+            </div>
+        </div>
+        
+        <div class="profile">
+            <img src="https://primelifepartners.com/wp-content/uploads/2024/01/anne-marie-2-300x300-1.png" alt="Anne-Marie Elias">
+            <div>
+                <h3>Anne-Marie Elias</h3>
+                <p>Fellow UTS, NED, Venture Partner, Senior Policy Adviser. Passionate about change, enabling tech, and innovation in longevity and care.</p>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.getElementById('rentOwn').addEventListener('change', function() {
+            if (this.value === 'own') {
+                document.getElementById('strataSection').style.display = 'block';
+            } else {
+                document.getElementById('strataSection').style.display = 'none';
+            }
+        });
+
+        function updateRetirementAgeValue() {
+            document.getElementById('retirementAgeValue').innerText = document.getElementById('retirementAge').value;
+        }
+
+        function formatNumber(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function calculateSuper() {
+            let currentSuper = parseFloat(document.getElementById('currentSuper').value);
+            let salary = parseFloat(document.getElementById('salary').value);
+            let rate = parseFloat(document.getElementById('rate').value);
+            let years = parseFloat(document.getElementById('years').value);
+            let growthRate = parseFloat(document.getElementById('growthRate').value) / 100;
+            let retirementAge = parseFloat(document.getElementById('retirementAge').value);
+            let deathAge = parseFloat(document.getElementById('deathAge').value);
+
+            let housingCost = parseFloat(document.getElementById('housingCost').value);
+            let electricity = parseFloat(document.getElementById('electricity').value);
+            let hairdressing = parseFloat(document.getElementById('hairdressing').value);
+            let car = parseFloat(document.getElementById('car').value);
+            let strataCost = document.getElementById('strataSection').style.display === 'block' 
+                            ? parseFloat(document.getElementById('strataCost').value) : 0;
+
+            let totalExpenses = (housingCost + electricity + hairdressing + car + strataCost) * 12;
+            let superannuation = currentSuper;
+
+            for (let i = 0; i < years; i++) {
+                superannuation += salary * (rate / 100);
+                superannuation *= (1 + growthRate);
+            }
+
+            let yearsInRetirement = deathAge - retirementAge;
+            let annualWithdrawal = totalExpenses;
+            let totalRetirementFund = superannuation;
+
+            for (let i = 0; i < yearsInRetirement; i++) {
+                totalRetirementFund *= (1 + growthRate);
+                totalRetirementFund -= annualWithdrawal;
+            }
+
+            document.getElementById('result').innerText = `
+                Retirement Age: ${retirementAge}\n
+                Total Superannuation at Retirement: $${formatNumber(superannuation.toFixed(2))}\n
+                Annual Expenses: $${formatNumber(annualWithdrawal.toFixed(2))}\n
+                Years in Retirement: ${yearsInRetirement}\n
+                Total Remaining Super at End of Life: $${formatNumber(totalRetirementFund.toFixed(2))}
+            `;
+
+            renderChart(superannuation, annualWithdrawal, yearsInRetirement, growthRate);
+        }
+
+        function renderChart(superannuation, annualWithdrawal, yearsInRetirement, growthRate) {
+            const ctx = document.getElementById('superChart').getContext('2d');
+            const labels = Array.from({length: yearsInRetirement}, (_, i) => i + 1);
+            const data = [];
+            let totalRetirementFund = superannuation;
+
+            for (let i = 0; i < yearsInRetirement; i++) {
+                totalRetirementFund *= (1 + growthRate);
+                totalRetirementFund -= annualWithdrawal;
+                data.push(totalRetirementFund);
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Remaining Superannuation Over Time',
+                        data: data,
+                        borderColor: '#e20074', /* Magenta */
+                        backgroundColor: 'rgba(226, 0, 116, 0.2)', /* Transparent Magenta */
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Years in Retirement'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Remaining Superannuation ($)'
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + formatNumber(value.toFixed(0));
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
