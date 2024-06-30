@@ -59,6 +59,7 @@
         #result {
             margin-top: 20px;
             font-size: 18px;
+            text-align: left;
         }
         .slider-container {
             text-align: left;
@@ -90,6 +91,11 @@
             max-width: 100%;
             height: auto;
         }
+        .broke-warning {
+            color: red;
+            font-weight: bold;
+            text-decoration: underline;
+        }
         @media (max-width: 600px) {
             .container {
                 padding: 15px;
@@ -113,52 +119,52 @@
         <h1>Primelife Partners Superannuation and Expenses Calculator</h1>
         <form id="superForm">
             <h2>Superannuation</h2>
-            <label for="currentSuper">Current Superannuation ($):</label>
+            <label for="currentSuper">💰 Current Superannuation ($):</label>
             <input type="number" id="currentSuper" value="100000">
             
-            <label for="salary">Annual Salary ($):</label>
+            <label for="salary">💵 Annual Salary ($):</label>
             <input type="number" id="salary" value="80000">
             
-            <label for="rate">Superannuation Contribution Rate (%):</label>
+            <label for="rate">📈 Superannuation Contribution Rate (%):</label>
             <input type="number" id="rate" value="10">
             
-            <label for="years">Years of Savings:</label>
+            <label for="years">📅 Years of Savings:</label>
             <input type="number" id="years" value="20">
 
-            <label for="growthRate">Annual Growth Rate (%):</label>
+            <label for="growthRate">📊 Annual Growth Rate (%):</label>
             <input type="number" id="growthRate" value="5">
 
             <div class="slider-container">
-                <label for="retirementAge">Retirement Age: <span id="retirementAgeValue">67</span></label>
+                <label for="retirementAge">🎂 Retirement Age: <span id="retirementAgeValue">67</span></label>
                 <input type="range" id="retirementAge" min="67" max="100" value="67" oninput="updateRetirementAgeValue()">
             </div>
 
             <h2>Expenses</h2>
-            <label for="rentOwn">Do you rent or own?</label>
+            <label for="rentOwn">🏠 Do you rent or own?</label>
             <select id="rentOwn">
                 <option value="rent">Rent</option>
                 <option value="own">Own</option>
             </select>
 
-            <label for="housingCost">Housing Cost (Monthly $):</label>
+            <label for="housingCost">🏡 Housing Cost (Monthly $):</label>
             <input type="number" id="housingCost" value="1500">
 
             <div id="strataSection" style="display: none;">
-                <label for="strataCost">Strata Cost (Monthly $):</label>
+                <label for="strataCost">🏢 Strata Cost (Monthly $):</label>
                 <input type="number" id="strataCost" value="200">
             </div>
 
-            <label for="electricity">Electricity (Monthly $):</label>
+            <label for="electricity">⚡ Electricity (Monthly $):</label>
             <input type="number" id="electricity" value="100">
 
-            <label for="hairdressing">Miscellaneous (Hairdressing, etc) (Monthly $):</label>
+            <label for="hairdressing">🛒 Miscellaneous (hairdressing, etc) (Monthly $):</label>
             <input type="number" id="hairdressing" value="50">
 
-            <label for="car">Car (Monthly $):</label>
+            <label for="car">🚗 Car (Monthly $):</label>
             <input type="number" id="car" value="200">
 
             <h2>Retirement</h2>
-            <label for="deathAge">Expected Age at Death:</label>
+            <label for="deathAge">⚰️ Expected Age at Death:</label>
             <input type="number" id="deathAge" value="85">
             
             <button type="button" onclick="calculateSuper()">Calculate</button>
@@ -184,6 +190,8 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        let chart;
+
         document.getElementById('rentOwn').addEventListener('change', function() {
             if (this.value === 'own') {
                 document.getElementById('strataSection').style.display = 'block';
@@ -233,13 +241,19 @@
                 totalRetirementFund -= annualWithdrawal;
             }
 
-            document.getElementById('result').innerText = `
-                Retirement Age: ${retirementAge}\n
-                Total Superannuation at Retirement: $${formatNumber(superannuation.toFixed(2))}\n
-                Annual Expenses: $${formatNumber(annualWithdrawal.toFixed(2))}\n
-                Years in Retirement: ${yearsInRetirement}\n
-                Total Remaining Super at End of Life: $${formatNumber(totalRetirementFund.toFixed(2))}
+            let resultMessage = `
+                <div>Retirement Age: ${retirementAge}</div>
+                <div>Total Superannuation at Retirement: $${formatNumber(superannuation.toFixed(2))}</div>
+                <div>Annual Expenses: $${formatNumber(annualWithdrawal.toFixed(2))}</div>
+                <div>Years in Retirement: ${yearsInRetirement}</div>
+                <div>Total Remaining Super at End of Life: $${formatNumber(totalRetirementFund.toFixed(2))}</div>
             `;
+
+            if (totalRetirementFund < 0) {
+                resultMessage += `<div><span class="broke-warning">YOU ARE BROKE 💀 YOU BETTER BE DEAD</span></div>`;
+            }
+
+            document.getElementById('result').innerHTML = resultMessage;
 
             renderChart(superannuation, annualWithdrawal, yearsInRetirement, growthRate);
         }
@@ -256,7 +270,11 @@
                 data.push(totalRetirementFund);
             }
 
-            new Chart(ctx, {
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
